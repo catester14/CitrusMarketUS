@@ -1,0 +1,215 @@
+---
+title: "US Citrus Market Outlook"
+author: "Colson Tester"
+date: "10/13/2022"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+pacman::p_load(
+  ggplot2,
+  scales,
+  tidyverse
+)
+  
+options(scipen = 999)
+
+```
+
+## Objective
+
+A summary of my view on whether AcreTrader should invest in US citrus production, including which categories of citrus, with a 10-year time horizon.
+
+- Background Information
+  - Citrus Crops
+  - Major Growing Regions
+  - Citrus Market Size
+- Opinions/Outlook
+  - Regional Risks (Climate/Pathogens/Agronomic Considerations)
+  - Supply Pressures
+  - Demand Vulnerability
+  - Profitability/Production Budgets
+  - International Markets
+
+## Citrus Crops and Growing Regions
+
+- Oranges (Navel and Valencia)
+  - California (145,000 acres)
+  - Florida (350,900 acres)
+  - Texas (7,800 acres)
+- Grapefruit
+  - California (8,700 acres)
+  - Florida (21,700 acres)
+  - Texas (16,000 acres)
+- Lemons
+  - California (50,000 acres)
+  - Arizona (7,300 acres)
+- Tangerines and Mandarins 
+  - California (66,000 acres)
+  - Florida (7,900 acres)
+  
+Source (https://www.nass.usda.gov/Publications/Todays_Reports/reports/cfrt0820.pdf) 
+
+## Citrus Crops and Growing Regions
+
+- California makes up approximately 80% of the US fresh market and is maintaining that market share.
+  - Some growers shifting to tree nuts due to labor costs
+  - Real price of mandarins up 75% since 2000
+  - Real price of navels down 5% since 2000
+
+- Florida has experienced 70% drop in growers, processors, and packers from the early 2000s.
+  - Largely due to citrus greening and residential expansion
+  - Florida growers facing 283% increase in cost of production per box from 2004 to 2016 due to incread total costs and decreased yields 
+
+## Regional Risks - Climate
+- Florida
+  - Hurricanes
+    - Category 2 and higher can result in significant damage
+    - Hurricanes Irma (2017) & Ian (2022)
+- California
+  - Drought
+    - Consistent shortages of precipitation in major growing regions
+    - Reliance on irrigation/groundwater
+    - Higher low temps and fewer freezes has created opportunities for growing in new regions
+  
+  Source (https://www.floridacitrus.org/newsroom/citrus-411/weather/florida-hurricanes/)
+ 
+## Regional Risks - Pathogens/Agronomic Considerations
+- Citrus Green Disease or HLB
+  - Florida
+    - First appeared in 2005
+    - Reduced FL citrus production by 75% and doubled cost of production
+    - No cure for infected trees with early detection also being difficult
+    - Some hybrids are more tolerant but not commercially viable at this point 
+  - California
+    - First detected in 2012
+    - No commercial grove infections
+    - Regulatory and preventative measures have increased citrus cost of production
+    - Climate in CA is less suitable than in FL and TX
+    
+Generally, perennial/permanent crops are much slower to benefit from breeding/genetic programs that would enhance traits such as disease resistance or drought tolerance when compared to annual crops. 
+    
+## Demand Trends
+- U.S. per capita orange consumption has declined since 2011
+- Strong upward trend in mandarin consumption
+- Per capita consumption of mandarins expected to exceed oranges by 2025
+- Demand accelerating faster than domestic production
+- Chile is the largest supplier of imported mandarins to U.S.
+  
+Source(https://www.bloomberg.com/news/articles/2022-05-02/mandarins-to-dethrone-oranges-as-top-fresh-citrus-in-u-s-market)
+
+## Supply Trends
+- Total U.S. production on a 25 year decline driven by lower yields and acres in Florida
+- Domestic orange production exceeds domestic consumption
+- U.S. production of mandarins is below domestic consumption
+- U.S. production of lemons/limes far below domestic consumption
+
+## Orange Supply
+
+```{r}
+orangeYields <- read.csv("OrangeYields.csv")
+orangeYields$Value <- gsub(",","", orangeYields$Value)
+orangeYields$Value <- as.numeric(orangeYields$Value)
+
+orangeAcres <- read.csv("OrangeAcres.csv")
+orangeAcres$Value <- gsub(",","", orangeAcres$Value)
+orangeAcres$Value <- as.numeric(orangeAcres$Value)
+
+orangeYieldPlot <- ggplot(data = orangeYields, aes(x = Year, y = Value, group = State)) +
+  geom_line(aes(color = State), show.legend = FALSE) + 
+  geom_point() + 
+  scale_x_continuous(breaks = pretty_breaks())+
+  ylab(label = "Yield (boxes/acre)")+
+  theme_classic()
+
+orangeAcresPlot <- ggplot(data = orangeAcres, aes(x = Year, y = Value, group = State)) +
+  geom_line(aes(color = State)) + 
+  geom_point() + 
+  scale_x_continuous(breaks = pretty_breaks())+
+  scale_y_continuous(breaks = pretty_breaks())+
+  ylab(label = "Acres")+
+  theme_classic()
+
+
+plot(orangeYieldPlot)
+plot(orangeAcresPlot)
+```
+
+## Tangerine Supply
+
+```{r pressure}
+tangerines <- read.csv("tangerineYieldsAcres.csv")
+tangYields <- tangerines %>% filter(Data.Item == "TANGERINES - YIELD, MEASURED IN BOXES / ACRE")
+tangYields$Value <- gsub(",","", tangYields$Value)
+tangYields$Value <- as.numeric(tangYields$Value)
+tangAcres <- tangerines %>% filter(Data.Item != "TANGERINES - YIELD, MEASURED IN BOXES / ACRE")
+tangAcres$Value <- gsub(",","", tangAcres$Value)
+tangAcres$Value <- as.numeric(tangAcres$Value)
+
+tangYieldPlot <- ggplot(data = tangYields, aes(x = Year, y = Value, group = State)) +
+  geom_line(aes(color = State), show.legend = FALSE) + 
+  geom_point() + 
+  scale_x_continuous(breaks = pretty_breaks())+
+  ylab(label = "Yield (boxes/acre)")+
+  theme_classic()
+
+tangAcresPlot <- ggplot(data = tangAcres, aes(x = Year, y = Value, group = State)) +
+  geom_line(aes(color = State)) + 
+  geom_point() + 
+  scale_x_continuous(breaks = pretty_breaks())+
+  ylab(label = "Acres")+
+  theme_classic()
+
+plot(tangYieldPlot)
+plot(tangAcresPlot)
+```
+
+## Florida Production Budgets (University of Florida)
+
+- Positive rates of return for medium to high density new orange orchards under "medium" and "high" price scenarios
+- IRR ranging from 6 - 11% under these scenarios and 20-year time horizon 
+- Returns based upon cash costs and include appreciation of land value over 20 year period ($3,800/ acre)
+- Critical assumptions are no hurricane or freeze impacts and steady yields
+
+```{r, echo=FALSE}
+knitr::include_graphics('./FA_Orange_prod.png')
+```
+
+## California Production Budgets (UC-Davis)
+
+- Positive net cash returns above operating costs for mature groves of oranges, lemons, and mandarins/tangerines
+- Positive returns to management for certain lemon regions, oranges, and mandarins.
+- Negative returns to management for Ventura lemons are largely due to land prices ($80,000/acre)
+ 
+- Oranges 
+ 
+```{r, echo=FALSE}
+knitr::include_graphics('./CA_Orange_prod.png')
+```
+
+## Mandarin and Lemon Budgets
+```{r, echo=FALSE}
+knitr::include_graphics('./CA_Mandarine_prod.png')
+```
+```{r, echo=FALSE}
+knitr::include_graphics('./CA_Lemon_prod.png')
+```
+
+## International Markets
+- U.S. is largely an importer of citrus other than oranges
+- Robust domestic demand for mandarins, lemons, and limes with imports coming from Mexico, Chile, and Argentina
+- Brazil, South Africa, and China are major orange producing countries
+
+Source (https://apps.fas.usda.gov/psdonline/circulars/citrus.pdf)
+
+## Summary
+- The U.S. Citrus industry as a whole is facing major headwinds on the supply side
+  - Citrus Greening
+  - Residential Expansion
+  - Drought
+- However, profitable opportunities exist especially in California for mandarins and lemons 
+  - San Joaquin Valley
+  - Positive returns to management for both crops
+  - Largest risks are drought and continued expansion of tree nut production
